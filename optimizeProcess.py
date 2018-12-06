@@ -18,8 +18,11 @@ nowpath = os.getcwd() + "\\questionPic"
 sdcard_path = "/storage/sdcard0/DCIM/Camera"
 sdcard_path2 = "/storage/emulated/legacy/DCIM/Camera"
 
+
 def fullProcessPic(datetag):
     #爱作业流程
+    time_file = open("result.csv", "w")
+    time_file.write("name,aizuoye_used_time,paizuoye_used_time\n")
     desired_caps_lovezuoye = {
         'platformName': 'Android',
         'deviceName': '220cba31',
@@ -120,6 +123,7 @@ def fullProcessPic(datetag):
                                 aizuoye_time_end = datetime.MINYEAR
                                 print("TIME END:", aizuoye_time_end)
                                 break
+                    aizuoye_used_time = (aizuoye_time_end - aizuoye_time_start).microseconds
                 except:
                     continue
 
@@ -148,7 +152,7 @@ def fullProcessPic(datetag):
                     print("TIME START:", paizuoye_time_start)
                     while True:
                         try:
-                            driver.find_element_by_xpath("//android.widget.TextView[@resource-id='ai.zuoye.app:id/tv_share']")
+                            driver2.find_element_by_xpath("//android.widget.TextView[@resource-id='com.knowbox.ocr:id/id_feedback']")
                             paizuoye_time_end = datetime.datetime.now()
                             print("TIME END:", paizuoye_time_end)
                             break
@@ -159,16 +163,19 @@ def fullProcessPic(datetag):
                                 paizuoye_time_end = datetime.MINYEAR
                                 print("TIME END:", paizuoye_time_end)
                                 break
+                    paizuoye_used_time = (paizuoye_time_end-paizuoye_time_start).microseconds
 
                 except:
                     continue
 
-                time.sleep(10)
+                time.sleep(2)
                 img_folder = os.getcwd() + '\\questionScreenshot\\'
                 screen_save_path = files[i] + "_paizuoye" + "_" + datetag + '.png'
                 print("STEP4 : SCREENSHOT IN " + img_folder)
                 print("NO." + str(counter) + " FINISHED")
+                time_file.write(files[i]+","+ str(aizuoye_used_time) +","+str(paizuoye_used_time)+ "\n")
                 driver2.get_screenshot_as_file(img_folder + screen_save_path)
                 driver2.quit()
                 counter = counter + 1
                 print("ALL FINISH.")
+    time_file.close()
