@@ -17,7 +17,7 @@ def get_remote_date():
     return timer
 
 #服务器信息
-host_name = "10.203.6.164"
+host_name = "10.200.2.235"
 username = "stf"
 password = "stf"
 port = 22
@@ -98,25 +98,29 @@ def del_file(path):
             os.remove(c_path)
 
 def run(str):
-    #autoMovFile_from_serv(str)
-    auto_rename_17zuoye(str)
-    optimizeProcess.fullProcessPic(str)
-    #baseFunction_lovezuoye.syncpic_lovezuoye()
-    #baseFunction_paizuoye.syncpic_paizuoye()
-    auto_generate_result(str)
-    del_file(localdir_orig)
-    del_file(localdir_labe)
-    del_file(localdir_screenshot)
+        autoMovFile_from_serv(str)
+        auto_rename_17zuoye(str)
+        optimizeProcess.fullProcessPic(str)
+        #baseFunction_lovezuoye.syncpic_lovezuoye()
+        #baseFunction_paizuoye.syncpic_paizuoye()
+        auto_generate_result(str)
+        del_file(localdir_orig)
+        del_file(localdir_labe)
+        del_file(localdir_screenshot)
+
 
 if __name__ == '__main__':
-    #print(datetime.datetime.now())
-    run("2018-12-18")
-    #print(datetime.datetime.now())
-    #run("2018-12-03")
+    run("2018-12-20")
+    run("2018-12-21")
+    run("2018-12-22")
+    run("2018-12-23")
 
-     # while True:
-     #       now = datetime.datetime.now()
-     #       if now.hour == 18:
-     #           run()
-     #       time.sleep(1000)
+    #
+    # while True:
+    #        now = datetime.datetime.now()
+    #        if now.hour == 17:
+    #            run(get_remote_date())
+    #        else:
+    #            time.sleep(1000)
+    #
 

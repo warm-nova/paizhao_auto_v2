@@ -21,7 +21,7 @@ sdcard_path2 = "/storage/emulated/legacy/DCIM/Camera"
 
 def fullProcessPic(datetag):
     #爱作业流程
-    time_file = open("result.csv", "w")
+    time_file = open("E:\\PycharmProjects\\paizhao_auto_v2\\questionScreenshot\\result.csv", "w")
     time_file.write("name,aizuoye_used_time,paizuoye_used_time\n")
     desired_caps_lovezuoye = {
         'platformName': 'Android',
@@ -40,6 +40,16 @@ def fullProcessPic(datetag):
         'platformVersion': '4.3',
         'appPackage': 'com.knowbox.ocr',  # 红色部分如何获取下面讲解
         'appActivity': 'MainActivity',
+        'noReset': True
+    }
+
+    desired_caps_xiaoyuan = {
+        'platformName': 'Android',
+        'deviceName': '220cba31',
+        # 'deviceName': '10.200.29.50:5555',
+        'platformVersion': '4.3',
+        'appPackage': 'com.fenbi.android.leo',  # 红色部分如何获取下面讲解
+        'appActivity':'com.fenbi.android.leo.activity.RouterActivity',
         'noReset': True
     }
 
@@ -68,34 +78,35 @@ def fullProcessPic(datetag):
                              'file:///storage/emulated/legacy/as_ocr/images/PhotoCheck/'],
                     'includeStderr': True,
                     'timeout': 8000})
+                print("Step 2: Delete picture in album")
+                nowpic = nowpath + "\\" + files[i]
+                print("Now pic is:" + nowpic)
+                # #传照片
+                with open(nowpic,"rb") as f:
+                      image_data = f.read()
+                      base64_data = base64.b64encode(image_data,altchars=None)
+                finaldata = str(base64_data,encoding='utf-8')
+                driver.push_file("/storage/emulated/legacy/DCIM/Camera/test.jpg",finaldata)
+                print("Step 3:Sync picture in mobile phone")
+                refresh_pic = driver.execute_script('mobile: shell', {
+                     'command': 'am',
+                     'args': ['broadcast', '-a', 'android.intent.action.MEDIA_MOUNTED', '-d',
+                              'file:///storage/emulated/legacy/DCIM/Camera/test.jpg'],
+                     'includeStderr': True,
+                     'timeout': 10000})
+
 
                 #等待这个activity的出现
                 driver.wait_activity("com.homework.app.ui.activity.HomeActivity",15,interval=2)
                 try:
-                    time.sleep(4)
+                    time.sleep(9)
                     driver.find_element_by_xpath("//android.widget.ImageView[@resource-id='ai.zuoye.app:id/lav_camera']").click()
                 except:
                     #更新了返回重新按
                     time.sleep(4)
                     driver.press_keycode(4)
                     driver.find_element_by_xpath("//android.widget.ImageView[@resource-id='ai.zuoye.app:id/lav_camera']").click()
-                print("Step 2: Delete picture in album")
-                nowpic = nowpath + "\\" + files[i]
-                print("Now pic is:" + nowpic)
 
-                #传照片
-                with open(nowpic,"rb") as f:
-                     image_data = f.read()
-                     base64_data = base64.b64encode(image_data,altchars=None)
-                finaldata = str(base64_data,encoding='utf-8')
-                driver.push_file("/storage/emulated/legacy/DCIM/Camera/test.jpg",finaldata)
-                print("Step 3:Sync picture in mobile phone")
-                refresh_pic = driver.execute_script('mobile: shell', {
-                    'command': 'am',
-                    'args': ['broadcast', '-a', 'android.intent.action.MEDIA_MOUNTED', '-d',
-                             'file:///storage/emulated/legacy/DCIM/Camera/test.jpg'],
-                    'includeStderr': True,
-                    'timeout': 10000})
                 print("Step 3:Go for formal test")
 
                 try:
@@ -120,10 +131,12 @@ def fullProcessPic(datetag):
                             time.sleep(0.5)
                             aizuoye_time_count = aizuoye_time_count + 0.5
                             if aizuoye_time_count > 15:
-                                aizuoye_time_end = datetime.MINYEAR
+                                aizuoye_time_end = datetime.datetime.now()
                                 print("TIME END:", aizuoye_time_end)
                                 break
                     aizuoye_used_time = (aizuoye_time_end - aizuoye_time_start).microseconds
+                    # if aizuoye_used_time > 10000:
+                    #     aizuoye_used_time = "INF"
                 except:
                     continue
 
@@ -136,10 +149,13 @@ def fullProcessPic(datetag):
                 print("NO." + str(counter) + " FINISHED")
                 driver.get_screenshot_as_file(img_folder + screen_save_path)
                 # driver.reset()
+
                 driver.quit()
 
+
+                #
                 driver2 = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps_paizuoye)
-                time.sleep(6)
+                time.sleep(9)
                 driver2.tap([(360, 780)], 200)
                 try:
                     time.sleep(4)
@@ -160,22 +176,59 @@ def fullProcessPic(datetag):
                             time.sleep(0.5)
                             paizuoye_time_count = paizuoye_time_count + 0.5
                             if paizuoye_time_count > 15:
-                                paizuoye_time_end = datetime.MINYEAR
+                                paizuoye_time_end = datetime.datetime.now()
                                 print("TIME END:", paizuoye_time_end)
                                 break
                     paizuoye_used_time = (paizuoye_time_end-paizuoye_time_start).microseconds
+                    # if paizuoye_used_time > 10000:
+                    #     paizuoye_used_time = "INF"
 
                 except:
                     continue
-
                 time.sleep(2)
                 img_folder = os.getcwd() + '\\questionScreenshot\\'
                 screen_save_path = files[i] + "_paizuoye" + "_" + datetag + '.png'
                 print("STEP4 : SCREENSHOT IN " + img_folder)
                 print("NO." + str(counter) + " FINISHED")
-                time_file.write(files[i]+","+ str(aizuoye_used_time) +","+str(paizuoye_used_time)+ "\n")
+                time_file.writelines(files[i]+","+ str(paizuoye_used_time) +","+str(paizuoye_used_time)+"\n")
                 driver2.get_screenshot_as_file(img_folder + screen_save_path)
                 driver2.quit()
+
+                driver3 = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps_xiaoyuan)
+                time.sleep(9)
+                try:
+                    driver3.find_element_by_xpath(
+                        "//android.widget.ImageView[@resource-id='com.fenbi.android.leo:id/btn_close']").click()
+                    time.sleep(2)
+                    driver3.find_element_by_xpath(
+                        "//android.widget.ImageView[@resource-id='com.fenbi.android.leo:id/to_camera']").click()
+                except:
+                    try:
+                        driver3.find_element_by_xpath(
+                            "//android.widget.ImageView[@resource-id='com.fenbi.android.leo:id/img_close']").click()
+                        time.sleep(2)
+                        driver3.find_element_by_xpath(
+                            "//android.widget.ImageView[@resource-id='com.fenbi.android.leo:id/to_camera']").click()
+                    except:
+                        driver3.find_element_by_xpath(
+                            "//android.widget.ImageView[@resource-id='com.fenbi.android.leo:id/to_camera']").click()
+                        time.sleep(2)
+
+                driver3.find_element_by_xpath(
+                    "//android.widget.ImageView[@resource-id='com.fenbi.android.leo:id/to_album']").click()
+                driver3.tap([(250, 300)], 200)
+                time.sleep(4)
+                driver3.tap([(500, 270)], 200)
+                time.sleep(10)
+
+                img_folder = os.getcwd() + '\\questionScreenshot\\'
+                screen_save_path = files[i] + "_xiaoyuan" + "_" + datetag + '.png'
+                print("STEP4 : SCREENSHOT IN " + img_folder)
+                print("NO." + str(counter) + " FINISHED")
+                driver3.get_screenshot_as_file(img_folder + screen_save_path)
+                time.sleep(2)
+                driver3.quit()
+
                 counter = counter + 1
                 print("ALL FINISH.")
-    time_file.close()
+                #time_file.close()
